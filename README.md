@@ -38,9 +38,9 @@ now be sent and received.
 
 ## How To Start Testing Using Relay
 
-> ###### For all documentation purposes, we will be using our [SDL iOS Library](https://github.com/forddev/relay_ios) for code snippets.
+> ###### For all documentation purposes, we will be using our [SDL iOS Library](https://github.com/smartdevicelink/sdl_ios) for code snippets.
 
-To get started, please be sure to use the proxy builder's [TCP/IP initializer](https://github.com/forddev/relay_ios/blob/master/SmartDeviceLink-iOS/SmartDeviceLink/SDLProxyFactory.h#L16).
+To get started, please be sure to use the proxy builder's [TCP/IP initializer](https://github.com/smartdevicelink/sdl_ios/blob/master/SmartDeviceLink-iOS/SmartDeviceLink/SDLProxyFactory.h#L16).
 ```objective-c
 SDLProxy* proxy = [SDLProxyFactory buildSDLProxyWithListener:sdlProxyListenerDelegate
                                                 tcpIPAddress:@"1.2.3.4"
@@ -52,7 +52,7 @@ SDLProxy* proxy = [SDLProxyFactory buildSDLProxyWithListener:sdlProxyListenerDel
 If you need general assistance, or have other questions, you can [sign up](http://slack.smartdevicelink.org/) for the [SDL Slack](https://smartdevicelink.slack.com/) and chat with other developers and the maintainers of the project.
 
 ## Found a Bug?
-If you see a bug, feel free to [post an issue](https://github.com/forddev/relay_ios/issues/new). Please see the [contribution guidelines](https://github.com/forddev/relay_ios/blob/master/CONTRIBUTING.md) before proceeding.
+If you see a bug, feel free to [post an issue](https://github.com/smartdevicelink/relay_app_ios/issues/new). Please see the [contribution guidelines](https://github.com/smartdevicelink/relay_app_ios/blob/master/CONTRIBUTING.md) before proceeding.
 
 ## Want to Help?
-If you want to help add more features, please [file a pull request](https://github.com/smartdevicelink/sdl_relay_ios/compare). Please see the [contribution guidelines](https://github.com/forddev/relay_ios/blob/master/CONTRIBUTING.md) before proceeding.
+If you want to help add more features, please [file a pull request](https://github.com/smartdevicelink/relay_app_ios/compare). Please see the [contribution guidelines](https://github.com/smartdevicelink/relay_app_ios/blob/master/CONTRIBUTING.md) before proceeding.
