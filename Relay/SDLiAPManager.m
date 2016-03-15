@@ -144,19 +144,18 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
 
 - (void)sdl_processIncomingBytesForStream:(NSStream *)aStream {
     while ([_session.inputStream hasBytesAvailable]) {
-        NSMutableData *incomingEAData = nil;
         uint8_t buf[1024];
-        NSUInteger len = 0;
+        NSInteger len = 0;
         len = [(NSInputStream *)aStream read:buf maxLength:1024];
-        NSData *recBytes = [[NSData alloc] initWithBytes:buf length:len];
 
         if (len) {
             if (_protocolRerouted) {
-                incomingEAData = [[NSMutableData alloc] init];
+                NSMutableData *incomingEAData = [[NSMutableData alloc] init];
                 [incomingEAData appendBytes:(const void *)buf length:len];
 
                 [self.delegate iAPManager:self didReceiveData:incomingEAData];
             } else {
+                NSData *recBytes = [[NSData alloc] initWithBytes:buf length:len];
                 int protocol = CFSwapInt32LittleToHost(*(int *)([recBytes bytes]));
                 NSString *newProtocol = [NSString stringWithFormat:IndexedProtocolString, protocol];
                 [self sdl_closeSession];
