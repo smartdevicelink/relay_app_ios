@@ -15,7 +15,7 @@
 
 - (void)closeStreams {
     [self.inputStream closeStream];
-    [self.inputStream closeStream];
+    [self.outputStream closeStream];
 }
 
 @end
