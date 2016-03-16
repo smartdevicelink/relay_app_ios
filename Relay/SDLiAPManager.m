@@ -65,23 +65,23 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
 #pragma mark - Notifications
 - (void)accessoryDidConnect:(NSNotification *)notification {
     [self.delegate iAPManagerUSBConnected:self];
-    _session = [self sdl_openSessionForProtocol:ControlProtocolString];
+    self.session = [self sdl_openSessionForProtocol:ControlProtocolString];
 }
 
 - (void)accessoryDidDisconnect:(NSNotification *)notification {
-    [self sdl_closeSession];
     [self.delegate iAPManagerUSBDisconnected:self];
+    [self sdl_closeSession];
 }
 
 - (void)batteryStateChanged:(NSNotification*)notification {
     if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateUnplugged) {
         [self sdl_closeSession];
         [self.delegate iAPManagerUSBDisconnected:self];
-        _protocolRerouted = NO;
+        self.protocolRerouted = NO;
     } else if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged
-               && !_session) {
-        _session = [self sdl_openSessionForProtocol:ControlProtocolString];
-        if (_session) {
+               && !self.session) {
+        self.session = [self sdl_openSessionForProtocol:ControlProtocolString];
+        if (self.session) {
             [self.delegate iAPManagerUSBConnected:self];
         }
     }
@@ -93,8 +93,8 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
         NSData *localData = [[NSData alloc] initWithData:data];
         
         while (localData != nil) {
-            if (_session.outputStream.hasSpaceAvailable) {
-                [_session.outputStream write:[localData bytes] maxLength:[localData length]];
+            if (self.session.outputStream.hasSpaceAvailable) {
+                [self.session.outputStream write:[localData bytes] maxLength:[localData length]];
                 localData = nil;
             }
         }
@@ -102,12 +102,12 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
 }
 
 - (void)restartEASession {
-    if (_session) {
+    if (self.session) {
         [self sdl_closeSession];
     }
     
-    if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged && _session == nil) {
-        _session = [self sdl_openSessionForProtocol:ControlProtocolString];
+    if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged && self.session == nil) {
+        self.session = [self sdl_openSessionForProtocol:ControlProtocolString];
     }
 }
 
@@ -125,7 +125,7 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
         case NSStreamEventNone:
         case NSStreamEventOpenCompleted:
         case NSStreamEventHasSpaceAvailable:
-        case NSStreamEventErrorOccurred:
+            break;
         default:
             break;
     }
@@ -136,35 +136,34 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
 #pragma mark Helpers
 - (void)sdl_connectToEAOnAppStart {
     if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged) {
-        if ((_session = [self sdl_openSessionForProtocol:ControlProtocolString])) {
+        if ((self.session = [self sdl_openSessionForProtocol:ControlProtocolString])) {
             [self.delegate iAPManagerUSBConnected:self];
         }
     }
 }
 
 - (void)sdl_processIncomingBytesForStream:(NSStream *)aStream {
-    while ([_session.inputStream hasBytesAvailable]) {
+    while ([self.session.inputStream hasBytesAvailable]) {
         uint8_t buf[1024];
         NSInteger len = 0;
         len = [(NSInputStream *)aStream read:buf maxLength:1024];
 
-        if (len) {
-            if (_protocolRerouted) {
                 NSMutableData *incomingEAData = [[NSMutableData alloc] init];
                 [incomingEAData appendBytes:(const void *)buf length:len];
 
                 [self.delegate iAPManager:self didReceiveData:incomingEAData];
+            if (self.protocolRerouted) {
             } else {
                 NSData *recBytes = [[NSData alloc] initWithBytes:buf length:len];
                 int protocol = CFSwapInt32LittleToHost(*(int *)([recBytes bytes]));
                 NSString *newProtocol = [NSString stringWithFormat:IndexedProtocolString, protocol];
                 [self sdl_closeSession];
 
-                _session = [self sdl_openSessionForProtocol:newProtocol];
+                self.session = [self sdl_openSessionForProtocol:newProtocol];
 
 
                 [self.delegate iAPManagerDataSessionEstablished:self];
-                _protocolRerouted = YES;
+                self.protocolRerouted = YES;
             }
         }
     }
@@ -182,7 +181,7 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
         } else {
             if ([[obj protocolStrings] containsObject:LegacyProtocolString] && ![[obj protocolStrings] containsObject:ControlProtocolString]) {
                 protocolString = LegacyProtocolString;
-                _protocolRerouted = YES;
+                self.protocolRerouted = YES;
                 accessory = obj;
                 break;
             }
@@ -209,10 +208,10 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
 }
 
 - (void)sdl_closeSession {
-    [_session closeStreams];
+    [self.session closeStreams];
     
     _protocolRerouted = NO;
-    _session = nil;
+    self.session = nil;
 }
 
 @end
