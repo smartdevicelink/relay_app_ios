@@ -148,11 +148,11 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
         NSInteger len = 0;
         len = [(NSInputStream *)aStream read:buf maxLength:1024];
 
-                NSMutableData *incomingEAData = [[NSMutableData alloc] init];
-                [incomingEAData appendBytes:(const void *)buf length:len];
-
-                [self.delegate iAPManager:self didReceiveData:incomingEAData];
+        if (len > 0) {
             if (self.protocolRerouted) {
+                NSData* incomingData = [NSData dataWithBytes:buf length:len];
+                
+                [self.delegate iAPManager:self didReceiveData:incomingData];
             } else {
                 NSData *recBytes = [[NSData alloc] initWithBytes:buf length:len];
                 int protocol = CFSwapInt32LittleToHost(*(int *)([recBytes bytes]));

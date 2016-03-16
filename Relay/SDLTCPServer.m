@@ -129,10 +129,9 @@ static void openConnection(CFSocketRef socket, CFSocketCallBackType type, CFData
 
 - (void)sdl_processIncomingBytesForStream:(NSStream *)theStream {
     uint8_t buf[1024];
-    NSUInteger len = 0;
+    NSInteger len = 0;
     len = [(NSInputStream *)theStream read:buf maxLength:1024];
-    if (len) {
-        [data appendBytes:(const void *)buf length:len];
+    if (len > 0) {
         NSData* data = [NSData dataWithBytes:buf length:len];
 
         [self.delegate TCPServer:self didReceiveData:data];
