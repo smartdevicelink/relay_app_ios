@@ -43,7 +43,7 @@
 - (void)startServer {
     CFSocketContext context = {0, (__bridge void *)self, NULL, NULL, NULL};
 
-    _socket = CFSocketCreate(kCFAllocatorDefault, PF_INET, SOCK_STREAM, IPPROTO_TCP, kCFSocketAcceptCallBack, &openConnection, &context);
+    self.socket = CFSocketCreate(kCFAllocatorDefault, PF_INET, SOCK_STREAM, IPPROTO_TCP, kCFSocketAcceptCallBack, &openConnection, &context);
 
     SDLTCPConnection* connection = [SDLTCPConnection connection];
     
@@ -56,15 +56,15 @@
     sin.sin_addr.s_addr = INADDR_ANY;
 
     // allow address/port to be reused after server is closed and restarted
-    setsockopt(CFSocketGetNative(_socket), SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
-    setsockopt(CFSocketGetNative(_socket), SOL_SOCKET, SO_REUSEPORT, &(int){1}, sizeof(int));
+    setsockopt(CFSocketGetNative(self.socket), SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int));
+    setsockopt(CFSocketGetNative(self.socket), SOL_SOCKET, SO_REUSEPORT, &(int){1}, sizeof(int));
 
     CFDataRef sincfd = CFDataCreate(kCFAllocatorDefault, (UInt8 *)&sin, sizeof(sin));
 
-    CFSocketSetAddress(_socket, sincfd);
+    CFSocketSetAddress(self.socket, sincfd);
     CFRelease(sincfd);
 
-    CFRunLoopSourceRef socketSource = CFSocketCreateRunLoopSource(kCFAllocatorDefault, _socket, 0);
+    CFRunLoopSourceRef socketSource = CFSocketCreateRunLoopSource(kCFAllocatorDefault, self.socket, 0);
     CFRunLoopAddSource(CFRunLoopGetCurrent(), socketSource, kCFRunLoopDefaultMode);
 
     [self.delegate TCPServer:self hasAvailableConnection:connection];
@@ -94,10 +94,10 @@ static void openConnection(CFSocketRef socket, CFSocketCallBackType type, CFData
     [self.inputStream closeStream];
     [self.outputStream closeStream];
 
-    if (_socket) {
-        CFSocketInvalidate(_socket);
-        CFRelease(_socket);
-        _socket = nil;
+    if (self.socket) {
+        CFSocketInvalidate(self.socket);
+        CFRelease(self.socket);
+        self.socket = nil;
     }
 }
 
@@ -128,12 +128,11 @@ static void openConnection(CFSocketRef socket, CFSocketCallBackType type, CFData
 }
 
 - (void)sdl_processIncomingBytesForStream:(NSStream *)theStream {
-    NSMutableData* data = [NSMutableData data];
     uint8_t buf[1024];
-    NSUInteger len = 0;
+    NSInteger len = 0;
     len = [(NSInputStream *)theStream read:buf maxLength:1024];
-    if (len) {
-        [data appendBytes:(const void *)buf length:len];
+    if (len > 0) {
+        NSData* data = [NSData dataWithBytes:buf length:len];
 
         [self.delegate TCPServer:self didReceiveData:data];
     }
