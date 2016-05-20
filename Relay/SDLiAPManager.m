@@ -64,8 +64,10 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
 
 #pragma mark - Notifications
 - (void)accessoryDidConnect:(NSNotification *)notification {
-    [self.delegate iAPManagerUSBConnected:self];
-    self.session = [self sdl_openSessionForProtocol:ControlProtocolString];
+    if (!self.session) {
+        [self.delegate iAPManagerUSBConnected:self];
+        self.session = [self sdl_openSessionForProtocol:ControlProtocolString];
+    }
 }
 
 - (void)accessoryDidDisconnect:(NSNotification *)notification {
@@ -75,15 +77,11 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
 
 - (void)batteryStateChanged:(NSNotification*)notification {
     if ([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateUnplugged) {
-        [self sdl_closeSession];
-        [self.delegate iAPManagerUSBDisconnected:self];
-        self.protocolRerouted = NO;
+        [self accessoryDidDisconnect:nil];
+         self.protocolRerouted = NO;
     } else if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged
                && !self.session) {
-        self.session = [self sdl_openSessionForProtocol:ControlProtocolString];
-        if (self.session) {
-            [self.delegate iAPManagerUSBConnected:self];
-        }
+        [self accessoryDidConnect:nil];
     }
 }
 
@@ -105,9 +103,10 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
     if (self.session) {
         [self sdl_closeSession];
     }
+
     
     if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged && self.session == nil) {
-        self.session = [self sdl_openSessionForProtocol:ControlProtocolString];
+        [self accessoryDidConnect:nil];
     }
 }
 
@@ -136,9 +135,7 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
 #pragma mark Helpers
 - (void)sdl_connectToEAOnAppStart {
     if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged) {
-        if ((self.session = [self sdl_openSessionForProtocol:ControlProtocolString])) {
-            [self.delegate iAPManagerUSBConnected:self];
-        }
+        [self accessoryDidConnect:nil];
     }
 }
 
@@ -151,18 +148,13 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
         if (len > 0) {
             if (self.protocolRerouted) {
                 NSData* incomingData = [NSData dataWithBytes:buf length:len];
-                
                 [self.delegate iAPManager:self didReceiveData:incomingData];
             } else {
                 NSData *recBytes = [[NSData alloc] initWithBytes:buf length:len];
                 int protocol = CFSwapInt32LittleToHost(*(int *)([recBytes bytes]));
                 NSString *newProtocol = [NSString stringWithFormat:IndexedProtocolString, protocol];
                 [self sdl_closeSession];
-
                 self.session = [self sdl_openSessionForProtocol:newProtocol];
-
-
-                [self.delegate iAPManagerDataSessionEstablished:self];
                 self.protocolRerouted = YES;
             }
         }
@@ -191,14 +183,14 @@ static NSString* const LegacyProtocolString = @"com.ford.sync.prot0";
     if (accessory) {
         session = [[EASession alloc] initWithAccessory:accessory
                                            forProtocol:protocolString];
+
         if (session) {
             [session openStreamsWithDelegate:self];
-        }
-        
-        if ([protocolString isEqualToString:ControlProtocolString]) {
-            [self.delegate iAPManagerControlSessionEstablished:self];
-        } else {
-            [self.delegate iAPManagerDataSessionEstablished:self];
+            if ([protocolString isEqualToString:ControlProtocolString]) {
+                [self.delegate iAPManagerControlSessionEstablished:self];
+            } else {
+                [self.delegate iAPManagerDataSessionEstablished:self];
+            }
         }
     }
     
