@@ -1,4 +1,5 @@
-# ![logo](/Readme Files/AppIcon.png) SmartDeviceLink (SDL) iOS Relay
+![logo](/Readme Files/AppIcon.png) 
+# SmartDeviceLink (SDL) iOS Relay
 
 SDL iOS Relay is a tool built for developers building applications
 that utilizes SmartDeviceLink for connecting their apps to technologies using
