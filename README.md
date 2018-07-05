@@ -46,7 +46,7 @@ To get started, please be sure to use the SDLLifecycleConfiguration's [TCP/IP in
 Objective-C:
 
 ```objective-c
-	SDLLifecycleConfiguration *lifecycle = [SDLLifecycleConfiguration debugConfigurationWithAppName:<#(nonnull NSString *)#> appId:<#(nonnull NSString *)#> ipAddress:<#(nonnull NSString *)#> port:<#(UInt16)#>];
+	SDLLifecycleConfiguration *lifecycle = [SDLLifecycleConfiguration debugConfigurationWithAppName:<#(nonnull NSString *)#> appId:<#(nonnull NSString *)#> ipAddress:@"1.2.3.4" port:2776];
 	SDLLockScreenConfiguration *lockscreen = [SDLLockScreenConfiguration enabledConfiguration];
 	SDLLogConfiguration *logConfiguration = [SDLLogConfiguration debugConfiguration];
     SDLConfiguration *configuration = [[SDLConfiguration alloc] initWithLifecycle:lifecycle lockScreen:lockscreen logging:logConfiguration];
@@ -55,7 +55,7 @@ Objective-C:
 
 Swift:
 ```swift
-	let lifeCycle = SDLLifecycleConfiguration(appName: <#T##String#>, appId: String, ipAddress: <#T##String#>, port: <#T##UInt16#>)
+	let lifeCycle = SDLLifecycleConfiguration(appName: <#T##String#>, appId: String, ipAddress: "1.2.3.4", port: UInt16(2776))
 	let config = SDLConfiguration(lifecycle: lifeCycle, lockScreen: .enabled(), logging: .debug())
 	self.sdlManager = SDLManager(configuration: config, delegate: <#T##SDLManagerDelegate?#>)
 ```
