@@ -41,12 +41,25 @@ now be sent and received.
 
 > ###### For all documentation purposes, we will be using our [SDL iOS Library](https://github.com/smartdevicelink/sdl_ios) for code snippets.
 
-To get started, please be sure to use the proxy builder's [TCP/IP initializer](https://github.com/smartdevicelink/sdl_ios/blob/master/SmartDeviceLink-iOS/SmartDeviceLink/SDLProxyFactory.h#L16).
+To get started, please be sure to use the SDLLifecycleConfiguration's [TCP/IP initializer](https://github.com/smartdevicelink/sdl_ios/blob/master/SmartDeviceLink/SDLLifecycleConfiguration.h#L47).
+
+Objective-C:
+
 ```objective-c
-SDLProxy* proxy = [SDLProxyFactory buildSDLProxyWithListener:sdlProxyListenerDelegate
-                                                tcpIPAddress:@"1.2.3.4"
-                                                        port:@"2776"];
+	SDLLifecycleConfiguration *lifecycle = [SDLLifecycleConfiguration debugConfigurationWithAppName:<#(nonnull NSString *)#> appId:<#(nonnull NSString *)#> ipAddress:@"1.2.3.4" port:2776];
+	SDLLockScreenConfiguration *lockscreen = [SDLLockScreenConfiguration enabledConfiguration];
+	SDLLogConfiguration *logConfiguration = [SDLLogConfiguration debugConfiguration];
+    SDLConfiguration *configuration = [[SDLConfiguration alloc] initWithLifecycle:lifecycle lockScreen:lockscreen logging:logConfiguration];
+	self.sdlManager = [[SDLManager alloc] initWithConfiguration:configuration delegate:<#(nullable id<SDLManagerDelegate>)#>];
 ```
+
+Swift:
+```swift
+	let lifeCycle = SDLLifecycleConfiguration(appName: <#T##String#>, appId: String, ipAddress: "1.2.3.4", port: UInt16(2776))
+	let config = SDLConfiguration(lifecycle: lifeCycle, lockScreen: .enabled(), logging: .debug())
+	self.sdlManager = SDLManager(configuration: config, delegate: <#T##SDLManagerDelegate?#>)
+```
+
 > NOTE: Be sure to start the Relay app **before** connecting your application to it.
 
 ## Need Help?
